@@ -1,12 +1,30 @@
-# Function (or method) names must start with 'test_' for pytest to find them.
+import pytest
+import pandas as pd
+from src.data_loader import DataLoader
+import os
 
-def test_data_load_completeness():
-    """A placeholder test to ensure 1+1=2, confirming basic setup works."""
-    # This will always pass, allowing the CI to proceed
-    assert 1 + 1 == 2
+# Create a temporary CSV file for testing
+@pytest.fixture
+def mock_csv(tmp_path):
+    d = tmp_path / "test_data.csv"
+    df = pd.DataFrame({
+        'headline': ['Stock rises', 'Market crash'],
+        'date': ['2023-01-01', '2023-01-02']
+    })
+    df.to_csv(d, index=False)
+    return str(d)
 
-def test_dataframe_exists():
-    """Another placeholder test for demonstration."""
-    # When you start writing actual code in src/ or notebooks, 
-    # you will replace this with real testing logic.
-    assert 2 * 2 == 4
+def test_load_data_exists(mock_csv):
+    """Test if data loads correctly from a CSV."""
+    loader = DataLoader(mock_csv)
+    df = loader.load_data()
+    assert not df.empty
+    assert 'headline' in df.columns
+    assert len(df) == 2
+
+def test_date_conversion(mock_csv):
+    """Test if dates are converted to datetime objects."""
+    loader = DataLoader(mock_csv)
+    df = loader.load_data()
+    # Check if the column is a datetime type
+    assert pd.api.types.is_datetime64_any_dtype(df['date'])
