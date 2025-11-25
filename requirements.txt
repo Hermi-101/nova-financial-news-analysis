@@ -9,3 +9,4 @@ nltk
 textblob
 scikit-learn
 pytest
+pynance
