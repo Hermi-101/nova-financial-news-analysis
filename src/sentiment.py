@@ -1,5 +1,6 @@
-from textblob import TextBlob
+# src/sentiment.py
 import pandas as pd
+from textblob import TextBlob
 
 class SentimentAnalyzer:
     """
@@ -13,14 +14,14 @@ class SentimentAnalyzer:
         """
         Returns a polarity score between -1 (negative) and 1 (positive).
         """
-        if pd.isna(text):
+        try:
+            return TextBlob(str(text)).sentiment.polarity
+        except Exception:
             return 0.0
-        return TextBlob(str(text)).sentiment.polarity
 
     def apply_sentiment_analysis(self) -> pd.DataFrame:
         """
         Applies sentiment scoring to the dataframe.
         """
-        print("Calculating sentiment scores...")
         self.df['sentiment_score'] = self.df[self.text_column].apply(self.get_sentiment_score)
         return self.df
